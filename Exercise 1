@@ -1,5 +1,5 @@
-import math
 from matplotlib import pyplot as plt
+import numpy as np
 
 
 
@@ -31,7 +31,8 @@ if __name__ == '__main__':
     psi_current=[]
     l=x_min
     while l <x_max:
-        psi_current.append((1/(math.pi*sigma_0**2))**(1/4)*math.e**(1j*k_0*l)*math.e**(-(l-x_0)**2/(2*sigma_0**2)))
+        psi_0=(1/(np.pi*sigma_0**2))**(1/4)*np.exp(1j*k_0*l)*np.exp((-(l-x_0)**2)/(2*sigma_0**2))
+        psi_current.append(psi_0)
         l=l+delta_x
     #L and R matrix
     L_mat = []
@@ -45,7 +46,7 @@ if __name__ == '__main__':
     beta_adj = 1 - 2j * alpha
     RMat_diag = []
     for i in range(M):
-        RMat_diag.append(beta_adj + 1j * delta_t * V[i] / 2)
+        RMat_diag.append(beta_adj -1j * delta_t * V[i] / 2)
     RMat_subdiag = 1j * alpha
     #A diagonal matrix
     A_trid = []
@@ -98,9 +99,9 @@ if __name__ == '__main__':
         t+=delta_t
         it+=1
     #Exercise 1
-    plt.plot(x_val, psi_2_data[0], color= 'peachpuff', label= 'Initial packet')
-    plt.plot(x_val, psi_2_data[1], color='lightpink', label='$500\Delta t$')
-    plt.plot(x_val, psi_2_data[2], color='turquoise', label='$1000\Delta t$')
+    plt.plot(x_val, psi_2_data[0], color='paleturquoise', label= 'Initial packet')
+    plt.plot(x_val, psi_2_data[1], color='turquoise', label='$500\Delta t$')
+    plt.plot(x_val, psi_2_data[2], color='lightseagreen', label='$1000\Delta t$')
     plt.plot(x_val, psi_2_data[3], color='teal', label='$1500\Delta t$')
     plt.plot(x_val, psi_2_data[4], color='darkgray', label='$2000\Delta t$')
     plt.legend()
@@ -113,4 +114,3 @@ if __name__ == '__main__':
     V_x.set_ylabel('$V(x)$')
 
     plt.show()
-
