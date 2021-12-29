@@ -58,51 +58,19 @@ if __name__ == '__main__':
         else:
             RMat_diag.append(beta_adj + 1j * delta_t * V_0 / 2)
     RMat_subdiag = 1j * alpha
-    #S and A
-    S_trid=[]
+    #A diagonal matrix
+    A_trid = []
     for i in range(M):
-        if i==0:
-            s=RMat_diag[i]*psi_current[i] + psi_current[i+1]*RMat_subdiag
-        elif i==M-1:
-            s = RMat_diag[i] * psi_current[i] + psi_current[i-1] * RMat_subdiag
+        if i == 0:
+            a = RMat_subdiag / RMat_diag[i]
         else:
-            s = RMat_diag[i] * psi_current[i] + psi_current[i+1] * RMat_subdiag+ psi_current[i-1] * RMat_subdiag
-        S_trid.append(s)
-    A_trid=[]
-    for i in range(M):
-        if i==0:
-            a=RMat_subdiag/RMat_diag[i]
-        else:
-            a=RMat_subdiag/(RMat_diag[i]-RMat_subdiag*A_trid[i-1])
+            a = RMat_subdiag / (RMat_diag[i] - RMat_subdiag * A_trid[i - 1])
         A_trid.append(a)
-    #Now we rewrite S_trid
-    S_trid2=[]
-    for i in range(M):
-        if i==0:
-            s=S_trid[i]/RMat_diag[i]
-        else:
-            s=(S_trid[i]-RMat_subdiag*S_trid2[i-1])/(RMat_diag[i]-RMat_subdiag*A_trid[i-1])
-        S_trid2.append(s)
-    S_trid=S_trid2
-    #Now we create psi_next
-    Psi_next=[]
-    for i in range(M,0,-1):
-        if i==M:
-            x=S_trid[i-1]
-        else:
-            x=S_trid[i-1]-A_trid[i-1]*x
-        Psi_next.insert(0,x)
-    #Psi squared vector
-    psi_2_data=[]
-    Psi_2 = []
-    for i in range(M):
-        Psi_2.append(abs(psi_current[i])**2)
-    psi_2_data.append(Psi_2)
     t = delta_t
-    it=1
+    it=0
+    psi_2_data = []
     while t < t_fin:
-        psi_current=Psi_next
-        # S and A
+        # S vector
         S_trid = []
         for i in range(M):
             if i == 0:
@@ -130,10 +98,14 @@ if __name__ == '__main__':
             else:
                 x = S_trid[i - 1] - A_trid[i - 1] * x
             Psi_next.insert(0, x)
+        # Psi squared vector
+
         Psi_2 = []
         for i in range(M):
             Psi_2.append(abs(psi_current[i]) ** 2)
-        if it==500 or it==1000 or it==1500 or it==2000:
+        psi_current=Psi_next
+
+        if it==0 or it==500 or it==1000 or it==1500 or it==2000:
             psi_2_data.append(Psi_2)
         t+=delta_t
         it+=1
@@ -153,3 +125,4 @@ if __name__ == '__main__':
     V_x.set_ylabel('$V(x)$')
 
     plt.show()
+
