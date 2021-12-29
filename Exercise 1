@@ -27,11 +27,6 @@ if __name__ == '__main__':
         l = l + delta_x
     for i in range(M):
         x_val.append(x_min+i*delta_x)
-    t_val=[]
-    t=0
-    while t<t_fin:
-        t_val.append(t)
-        t+=delta_t
     #Psi_0 vector
     psi_current=[]
     l=x_min
