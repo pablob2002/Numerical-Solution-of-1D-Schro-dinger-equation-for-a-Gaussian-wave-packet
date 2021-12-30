@@ -109,7 +109,7 @@ if __name__ == '__main__':
         t += delta_t
         it += 1
     plt.plot(t_val, Int, color='teal')
-    #plt.plot(t_val, Int[-1], '--')
+    plt.axhline(y=Int[-1],color='orange', linestyle='--')
     plt.ylabel('Transmission probability $T$')
     plt.xlabel('$t$')
     plt.axis([0, 60, 0, 5*10**(-3)])
