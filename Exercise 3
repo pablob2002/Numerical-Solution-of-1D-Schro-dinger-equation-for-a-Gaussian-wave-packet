@@ -1,0 +1,137 @@
+from matplotlib import pyplot as plt
+import numpy as np
+
+# Press the green button in the gutter to run the script.
+if __name__ == '__main__':
+    delta_t = 0.005
+    t_fin = 50
+    delta_x = 0.05
+    x_min = -60
+    x_max = 60
+    k=[0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8]
+    sigma_0 = 3
+    x_0 = -10
+    L = 2
+    V_0 = 2
+    M = 2401
+    Int_tot=[]
+    t_val=[]
+    t=0
+    for i in np.arange(0,t_fin,delta_t):
+        t_val.append(i)
+    x_val = []
+    V = []
+    l = x_min
+    while l < x_max:
+        if l >= 0 and l <= L:
+            V.append(V_0)
+        else:
+            V.append(0)
+        l = l + delta_x
+    for i in range(M):
+        x_val.append(x_min + i * delta_x)
+    for k_0 in k:
+        Int = []
+        # Psi_0 vector
+        psi_current = []
+        l = x_min
+        while l < x_max:
+            psi_0 = (1 / (np.pi * sigma_0 ** 2)) ** (1 / 4) * np.exp(1j * k_0 * l) * np.exp(
+                (-(l - x_0) ** 2) / (2 * sigma_0 ** 2))
+            psi_current.append(psi_0)
+            l = l + delta_x
+        # L and R matrix
+        L_mat = []
+        R_mat = []
+        alpha = (delta_t) / (4 * delta_x ** 2)
+        beta = 1 + 2j * alpha
+        LMat_diag = []
+        for i in range(M):
+            LMat_diag.append(beta + 1j * delta_t * V[i] / 2)
+        LMat_subdiag = -1j * alpha
+        beta_adj = 1 - 2j * alpha
+        RMat_diag = []
+        for i in range(M):
+            RMat_diag.append(beta_adj - 1j * delta_t * V[i] / 2)
+        RMat_subdiag = 1j * alpha
+        # A diagonal matrix
+        A_trid = []
+        for i in range(M):
+            if i == 0:
+                a = LMat_subdiag / LMat_diag[i]
+            else:
+                a = LMat_subdiag / (LMat_diag[i] - LMat_subdiag * A_trid[i - 1])
+            A_trid.append(a)
+        t = 0
+        it = 0
+        Psi_2 = []
+        while t < t_fin:
+            # S vector
+            S_trid = []
+            for i in range(M):
+                if i == 0:
+                    s = RMat_diag[i] * psi_current[i] + psi_current[i + 1] * RMat_subdiag
+                elif i == M - 1:
+                    s = RMat_diag[i] * psi_current[i] + psi_current[i - 1] * RMat_subdiag
+                else:
+                    s = RMat_diag[i] * psi_current[i] + psi_current[i + 1] * RMat_subdiag + psi_current[
+                        i - 1] * RMat_subdiag
+                S_trid.append(s)
+            # Now we rewrite S_trid
+            S_trid2 = []
+            for i in range(M):
+                if i == 0:
+                    s = S_trid[i] / LMat_diag[i]
+                else:
+                    s = (S_trid[i] - LMat_subdiag * S_trid2[i - 1]) / (LMat_diag[i] - LMat_subdiag * A_trid[i - 1])
+                S_trid2.append(s)
+            S_trid = S_trid2
+            # Now we create psi_next
+            Psi_next = []
+            for i in range(M, 0, -1):
+                if i == M:
+                    x = S_trid[i - 1]
+                else:
+                    x = S_trid[i - 1] - A_trid[i - 1] * Psi_next[0]
+                Psi_next.insert(0, x)
+            for i in psi_current:
+                Psi_2.append(abs(i) ** 2)
+            cum_sum = 0
+            I_k = 0
+            i_0 = int((L - x_min) / delta_x)
+            for i in range(i_0 + 1, M):
+                if i == M - 1:
+                    cum_sum += 0.5 * Psi_2[M - 1]
+                else:
+                    cum_sum += Psi_2[i]
+            I_k = delta_x * cum_sum
+            Int.append(I_k)
+            Psi_2 = []
+            psi_current = Psi_next
+            t += delta_t
+            it += 1
+        Int_tot.append(Int)
+
+
+    plt.plot(t_val, Int_tot[0], color='teal', label='$k_0='+str(k[0]))
+    plt.plot(t_val, Int_tot[1], color='darkturquoise', label='$k_0=' + str(k[1]))
+    plt.plot(t_val, Int_tot[2], color='cyan', label='$k_0=' + str(k[2]))
+    plt.plot(t_val, Int_tot[3], color='lightseagreen', label='$k_0=' + str(k[3]))
+    plt.plot(t_val, Int_tot[4], color='turquoise', label='$k_0=' + str(k[4]))
+    plt.plot(t_val, Int_tot[5], color='aquamarine', label='$k_0=' + str(k[5]))
+    plt.plot(t_val, Int_tot[6], color='springgreen', label='$k_0=' + str(k[6]))
+    plt.plot(t_val, Int_tot[7], color='lime', label='$k_0=' + str(k[7]))
+    plt.plot(t_val, Int_tot[8], color='lawngreen', label='$k_0=' + str(k[8]))
+    plt.plot(t_val, Int_tot[9], color='greenyellow', label='$k_0=' + str(k[9]))
+    plt.plot(t_val, Int_tot[10], color='yellow', label='$k_0=' + str(k[10]))
+    plt.plot(t_val, Int_tot[11], color='gold', label='$k_0=' + str(k[11]))
+    plt.plot(t_val, Int_tot[12], color='orange', label='$k_0=' + str(k[12]))
+    plt.plot(t_val, Int_tot[13], color='darkorange', label='$k_0=' + str(k[13]))
+    plt.plot(t_val, Int_tot[14], color='orangered', label='$k_0=' + str(k[14]))
+    plt.plot(t_val, Int_tot[15], color='tomato', label='$k_0=' + str(k[15]))
+    plt.legend()
+    plt.ylabel('Transmission probability $T$')
+    plt.xlabel('$t$')
+    plt.axis([0, 50, 0,1])
+    plt.yscale('log')
+    plt.show()
