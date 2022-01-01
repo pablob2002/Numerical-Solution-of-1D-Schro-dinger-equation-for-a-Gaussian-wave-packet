@@ -94,6 +94,15 @@ if __name__ == '__main__':
             for i in psi_current:
                 Psi_2.append(abs(i)**2)
             psi_2_data.append(Psi_2)
+            I_k = 0
+            cum_sum=0
+            for i in range(M):
+                if i == M - 1 or i==0:
+                    cum_sum += 0.5 * Psi_2[M - 1]
+                else:
+                    cum_sum += Psi_2[i]
+            I_k = delta_x * cum_sum
+            print(I_k)
             Psi_2=[]
         psi_current = Psi_next
         t+=delta_t
